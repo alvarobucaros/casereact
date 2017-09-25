@@ -232,6 +232,10 @@ function cargarXMLDoc(archivoXML)
  alert("Error cargando el documento.");
  return null;
 }
+
+function nueva_funcion() {
+	alert('nueva funcion');
+}
  
 </script>
 
