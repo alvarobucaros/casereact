@@ -1,0 +1,5 @@
+Codigo,Detalle	
+ESP,Español
+ING,Inglés
+FRN,Francés
+OTR,Otro

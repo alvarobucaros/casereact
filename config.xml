@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<parametros>
+	<parametro>
+		<llave>user</llave>
+		<dato>Alvaro Ortiz Castellanos</dato>
+	</parametro>
+	<parametro>
+		<llave>ruta</llave>
+		<dato>C:/wamp/www/atomIngenieria/</dato>
+	</parametro>
+	<parametro>
+		<llave>lsruta</llave>
+		<dato>C:/wamp/www/casePHP/scripts/</dato>
+	</parametro>	
+        	<parametro>
+		<llave>leng</llave>
+		<dato>ESP</dato>
+	</parametro>
+        	<parametro>
+		<llave>js</llave>
+		<dato>controller</dato>
+	</parametro>
+        	<parametro>
+		<llave>view</llave>
+		<dato>views</dato>
+	</parametro>
+        	<parametro>
+		<llave>mod</llave>
+		<dato>modulos</dato>
+	</parametro>
+</parametros>
