@@ -4,7 +4,7 @@
 <link href="css/estilo.css" rel="stylesheet" type="text/css"/>
 <script src="js/jquery-1.12.0.js" type="text/javascript"></script>
 </head>
-<?php include_once 'idiomaESP.php'; ?>
+<?php include_once 'idiomaESP.php'; $leng=''; ?>
 <body>
     <div  ID="titulo"><h4><?php echo $titGeneral ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>v.1.0.1 - 2017-08-15</strong></h4></div>
 <div id="main">
@@ -61,7 +61,7 @@
         <br />
         <div>
             <a onclick="procesar();" class="button"><img src="img/aprobar.png" alt="procesar" title="Procesa petición" /><?php echo $procesa ?></a>
-            <i class="fa fa-question" ></i> <a href="#ayudas" cass="fa fa-question" ><?php echo $ayudas ?> </a>
+            <a href="#ayudas" cass="fa fa-question" id="open" ><?php echo $ayudas ?> </a>
               
         </div> 
         <br /> 
@@ -78,7 +78,7 @@
         echo ' <input   type="text" id="js" value = ""></input>'; 
         echo ' <input   type="text" id="mod" value = ""></input>'; 
         echo ' <input   type="text" id="view" value = ""></input>'; 
-        echo '  </div>>/div>';
+        echo '  </div></div>';
        ?>
     </form>
 </div>
@@ -86,8 +86,10 @@
     <div class="content-popup">
         <div class="close"><a href="#" id="close"><img src="img/close.gif"/></a></div>
         <div>
-           <h2>Contenido POPUP</h2>
-           ...
+           <h2>Lecturas</h2>
+           <a href="Doc01.pdf">Manual de usuario</a>
+           <p class="cierraText">Seg&uacute;n su navegador, abre o descarga el texto</p>
+           <p class="cierraText">Para cerrar la lectura utilice el regreso del navegador</p>
         </div>
     </div>
 </div>
@@ -233,10 +235,6 @@ function cargarXMLDoc(archivoXML)
  return null;
 }
 
-function nueva_funcion() {
-	alert('nueva funcion');
-}
- 
 </script>
 
 <script type="text/javascript">
