@@ -6,11 +6,11 @@
 	</parametro>
 	<parametro>
 		<llave>ruta</llave>
-		<dato>C:/wamp/www/atomIngenieria/</dato>
+		<dato>C:/wamp/www/multimeeting/</dato>
 	</parametro>
 	<parametro>
 		<llave>lsruta</llave>
-		<dato>C:/wamp/www/casePHP/scripts/</dato>
+		<dato>C:/wamp/www/multimeeting/scripts/</dato>
 	</parametro>	
         	<parametro>
 		<llave>leng</llave>
@@ -18,14 +18,14 @@
 	</parametro>
         	<parametro>
 		<llave>js</llave>
-		<dato>controller</dato>
+		<dato>app/controler</dato>
 	</parametro>
         	<parametro>
 		<llave>view</llave>
-		<dato>views</dato>
+		<dato>app/views</dato>
 	</parametro>
         	<parametro>
 		<llave>mod</llave>
-		<dato>modulos</dato>
+		<dato>app/modulos</dato>
 	</parametro>
 </parametros>

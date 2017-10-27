@@ -49,9 +49,9 @@
             <input  style=" width: 300" type="text" id="user" value = "Alvaro"></input>
         </div>
         <br />
-        <div id="ruta">
+        <div>
             <label><?php echo $descarga ?></label> 
-            <input  style=" width: 300" type="text" id="ruta" value = "C:/wamp/www/atomIngenieria/"></input>
+            <input  style=" width: 300" type="text" id="ruta" value = "C:/"></input>
         </div>
         <br />        
         <div>

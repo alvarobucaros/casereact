@@ -675,7 +675,7 @@ if($frm=='cr'){
     graba($ar,"                </div>");
     graba($ar,"                <div class=\"alert alert-default input-group search-box\">");
     graba($ar,"                    <span class=\"input-group-btn\">");
-    graba($ar,"                        <input type=\"text\" class=\"form-control busca-mm\" placeholder=\"{{form_Phbusca}}\" ng-model=\"search_query\" required>");
+    graba($ar,"                        <input type=\"text\" class=\"form-control mitexto busca-mm\" placeholder=\"{{form_Phbusca}}\" ng-model=\"search_query\" required>");
     graba($ar,"                    </span>");
     graba($ar,"                </div>");
     graba($ar,"            </div>");
@@ -697,7 +697,7 @@ $u=0;
 for ($x=0;$x<=$j;$x++){
     if($column[$x][0]!=$indiceCmp ){   
         graba($ar,"                <div class=\"form-group\">");
-        graba($ar,"                    <label class=\"control-label col-md-4\" for=\"".$column[$x][0]."\">{{form_".$column[$x][0]."}}</label>");
+        graba($ar,"                    <label class=\"control-label milabel col-md-4\" for=\"".$column[$x][0]."\">{{form_".$column[$x][0]."}}</label>");
          if($column[$x][3]==0 && $column[$x][7]==0 ){  ///  Botones radio y check
           if ($column[$x][8]==''){ 
             $text = strtoupper($column[$x][10]); 
@@ -705,35 +705,36 @@ for ($x=0;$x<=$j;$x++){
             graba($ar,"                   <div class=\"col-md-6\">");
             switch ($text) {
                 case 'T':  // text area
-                    graba($ar,"                    <textarea  class=\"form-control\"  cols=\"60\" rows=\"4\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
+                    graba($ar,"                    <textarea  class=\"form-control mitexto\"  cols=\"60\" rows=\"4\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
                     graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
                     graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\">");  
                     graba($ar,"                    </textarea>");  
                     break;
                 case 'P': // password
-                    graba($ar,"                    <input type=\"password\" class=\"form-control\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
+                    graba($ar,"                    <input type=\"password\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
                     graba($ar,"                        ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
                     graba($ar,"                       value=\"{{registro.".$column[$x][0]."}}\" />"); 
                     break;
                 case 'M': //email
-                    graba($ar,"                    <input type=\"email\" class=\"form-control\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
+                    graba($ar,"                    <input type=\"email\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
                     graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
                     graba($ar,"                         pattern=\"[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}\"  value=\"{{registro.".$column[$x][0]."}}\" />");
                     break;
                 case 'D': //date             
-                    graba($ar,"                    <input type=\"date\" width=\"12\" class=\"form-control fa fa-calendar fa-lg\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
+                    graba($ar,"                    <input type=\"date\" width=\"12\" class=\"form-control mitexto fa fa-calendar fa-lg\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
                     graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
                     graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\"   />");                      
                     break;
                 
                 default:                       
-                    graba($ar,"                    <input type=\"text\" class=\"form-control\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
+                    graba($ar,"                    <input type=\"text\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
                     graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
                     graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\" />");
 
             }
             graba($ar,"                    </div>");
         }else{
+            print_r($column[$x]);
             $table= $column[$x][8];
             $inom= $column[$x][9];
           //  $table = $fileLista[$i];
@@ -747,7 +748,7 @@ for ($x=0;$x<=$j;$x++){
         
             
             if ($pos == false) {
-                $cols=explode(',',$inom);
+                $cols=trim(explode(',',$inom));
                 graba($ar,"                    <div class=\"col-md-6\">");
                 graba($ar,"                    <select id='". $column[$x][0] . "' name='". $column[$x][0] . "' ng-model='". $ngModel . "' >");
                 graba($ar,"                     <option ng-repeat='operator".$sel . " in operators" . $sel . "' value = \" {{operator".$sel."." . $cols[0] . "}}\">{{operator".$sel.".".$cols[1]."}}</option>");
@@ -819,7 +820,7 @@ if($frm=='cr'){
     graba($ar,"        <div class=\"col-md-10\">");
     graba($ar,"            <!-- Table to show employee detalis -->");
     graba($ar,"            <div class=\"table-responsive\">");
-    graba($ar,"                <table class=\"table table-hover\">");
+    graba($ar,"                <table class=\"table table-hover tablex\">");
     graba($ar,"                    <tr>");
             for ($x=0;$x<=$j;$x++){
                graba($ar,"                        <th>".$column[$x][2]."</th>");
