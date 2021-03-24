@@ -41,7 +41,7 @@ border-top-left-radius: 6px;
 border-top-right-radius: 6px;
 border-bottom-right-radius: 6px;
 border-bottom-left-radius: 6px;
-	background-color:#008cab;padding-bottom:20px;text-align:center; }
+	background-color:#FF8cab;padding-bottom:20px;text-align:center; }
 #login{width:80%; margin:auto; margin-top:10px;border:2px solid #C0C2C1;
 	background-color:#F2F2F2;padding-bottom:20px;text-align:center; }
 #aCerca{width:80%; margin:auto; margin-top:10px;border:2px solid #C0C0C0;
@@ -50,7 +50,9 @@ border-bottom-left-radius: 6px;
 	background-color:#008cab;padding-bottom:20px;padding-top:0px; text-align:center; font-size:12px; font-weight:
             bold; color:#abbb99;}
 #progreso span {color: #cfd8c5; font-size: 14px;  margin-top: 5px; }
-.titulo{background-color:#F2F2F2;padding-bottom:20px;text-align:center; font-size:12px; font-weight: bold }
+.titulo{background-color:#F2F2F2;padding-bottom:40px;text-align:center; font-size:12px; font-weight: bold }
+.tit{padding-top: 30; color: #008ead; background-color:#F2F2F2; alignment-adjust:central;
+  padding-top: 10px;      padding-bottom:10px;text-align:center; font-size:14px; font-weight: bold}
 #encabezado p {color:#fff;font-size: 18px; font-weight: bold; vertical-align: central; padding-bottom: 20px; }
 #encabezado span {color:#fff;font-size: 18px; font-weight: bold; vertical-align: central; }
 #contenedor{width:900px; height: 30%; margin:auto;margin-top:20px;border:2px solid #C0C0C0;
@@ -159,7 +161,7 @@ tr.estiloFila-1:hover {background-color:#cdce7e;}
   padding-right: 20px;
   padding-bottom: 30px;
   padding-left: 40px;}
-form{border:2px solid #C0C0C0;background-color:#F2F2F2;	width:860px;
+form{border:2px solid #C0C0C0;background-color:#F2F2F2;	width:960px;
 	margin:auto;margin-bottom:20px;}
 form p{	margin:auto;width:450px;margin-top:5px;margin-bottom:3px;}
 form input{border:1px solid #CCCCCC;padding:3px;}

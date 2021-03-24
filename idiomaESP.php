@@ -1,8 +1,11 @@
 <?php
-$titGeneral="GENERA FORMULARIO CRUD CON ANGULAR";
+$idioma="ESP";
+$titGeneral="GENERA PARA NodeJS Y ReactJS";
+$version = "v.1.0.2 - 2021-03-14";
 $tpFormulario="Tipo formulario";
 $formulario="Formulario";
 $conEncabezado="Con Encabezado";
+$exporta="Exporta a Excel";
 $si="SI";
 $no="NO";
 $baseDatos="Base de Datos";
@@ -10,8 +13,11 @@ $tabla="Tabla a procesar";
 $columnas="Columnas de la tabla";
 $prefijo="Prefijo campos";
 $usuario="Usuario";
+$proyecto="Proyecto";
 $descarga="Descargar Objetos";
 $ruta="Ruta listas";
 $procesa="Procesa";
 $ayudas="Ayudas";
 $nota="Debe indicarse: el campo de indice, el  ordenamiento y el  autor";
+$lecturas="Lecturas";
+$manual="Manual de usuario";

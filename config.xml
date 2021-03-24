@@ -6,19 +6,19 @@
 	</parametro>
 	<parametro>
 		<llave>ruta</llave>
-		<dato>C:/wamp/www/multimeeting/</dato>
+		<dato>C:/desarrollos/react</dato>
 	</parametro>
 	<parametro>
 		<llave>lsruta</llave>
-		<dato>C:/wamp/www/multimeeting/scripts/</dato>
+		<dato>C:/desarrollos/react</dato>
 	</parametro>	
         	<parametro>
 		<llave>leng</llave>
-		<dato>ESP</dato>
+		<dato>ENG</dato>
 	</parametro>
         	<parametro>
 		<llave>js</llave>
-		<dato>app/controler</dato>
+		<dato>app/controller/ctrls</dato>
 	</parametro>
         	<parametro>
 		<llave>view</llave>

@@ -8,12 +8,12 @@ class DBconexion{
 	var $Clave;
         var $mysqli;
         
- 	function DBconexion(){
-		$this->BaseDatos = "test";
-		$this->Servidor = "localhost";
-		$this->Usuario = "root";
-		$this->Clave = "";                             
-	}       
+    public function __construct($BaseDatos, $Servidor, $Usuario, $Clave){
+        $this->BaseDatos = $BaseDatos;
+        $this->Servidor = $Servidor;
+        $this->Usuario = $Usuario;
+        $this->Clave = $Clave;
+    }      
         
         
         function conectar() {

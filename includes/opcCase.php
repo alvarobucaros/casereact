@@ -1,6 +1,7 @@
 <?php
 include_once("clsConection.php");
-$objClase=new DBconexion;
+$obj = new DBconexion("atominge","127.0.0.1","root","");
+//$objClase=new DBconexion;
 date_default_timezone_set("America/Bogota");
 
 if(isset($_POST["accion"])){
@@ -10,7 +11,7 @@ if(isset($_POST["accion"])){
     if ($accion=='ddlBasesDatos'){
         $sql = "SELECT distinct table_schema FROM information_schema.TABLES ".
                "WHERE table_schema NOT LIKE 'information_%' AND table_schema NOT LIKE 'performance_%' ";
-       $obj = new DBconexion();
+      // $obj = new DBconexion();
        $con = $obj->conectar();
         $respuesta='<select name="selDB" id="selDB" onChange="cambiaDB()"><option value="-1">Seleccione DB</option>';
         
@@ -30,7 +31,7 @@ if(isset($_POST["accion"])){
        $data = explode('||', $condicion);
        $sql = "SELECT distinct table_name  FROM information_schema.columns WHERE table_schema = '".
                $data[0] . "' order by table_name;";
-       $obj = new DBconexion();
+      // $obj = new DBconexion();
        $con = $obj->conectar();
         $respuesta='<select name="selTabla" id="selTabla" onChange="cambiaTabla()"><option value="-1">Seleccione Tabla</option>';
         
@@ -52,12 +53,12 @@ if(isset($_POST["accion"])){
        $sql = "SELECT column_name,  column_type, column_comment  ".
                "FROM information_schema.columns WHERE table_schema = '".
                $data[0] . "' AND table_name = '" . $data[1] . "' ORDER BY ordinal_position; ";
-       $obj = new DBconexion();
+      // $obj = new DBconexion();
        $con = $obj->conectar();
      
         $respuesta='<table id="tabla" class="tablex" border="1"><tr><th>Columna</th><th>tipo</th><th>Nombre</th>'
-                . '<th>Index</th><th>Orde n</th><th>Tipo Text</th><th>Valida</th><th>Radio</th><th>Check</th>'.
-                '<th>Tabla lista</th><th>CodDetalle</th></tr>';
+                . '<th>Index</th><th>Orde n</th><th>Tipo Text</th><th>Empresa</th><th>Radio</th><th>Check</th>'.
+                '<th>Tabla o lista</th><th>Cod y Detalle</th></tr>';
         $i=0;
         $result = mysqli_query($con, $sql);
         while( $reg = mysqli_fetch_array($result, MYSQLI_ASSOC) ){
@@ -77,18 +78,17 @@ if(isset($_POST["accion"])){
             "<td><input class='tip' type='text' size='10' id='ti".$i."' value='". $reg['column_type'] ."' /></td>".
             "<td><input class='tip' type='text' size='20' id='no".$i."' value='". $comen ."' /></td>".
             "<td><input type='checkbox' size='5' class='td' name='in".$i."'></input></td>".
-            "<td><input type='checkbox' size='5' class='td' name='or".$i."'></input></td>".
+            "<td><input type='checkbox' size='6' class='td' name='or".$i."'></input></td>".
             "<td><input class='tip' type='text' size='8' id='tx".$i."' name='tx".$i."' value='". $tx ."' ></input></td>".
-            "<td><input type='checkbox' size='5' class='td' name='va".$i."' checked></input></td>".
+            "<td><input type='checkbox' size='5' class='td' name='va".$i."' ></input></td>".
             "<td><input class='tip' type='text' size='2' maxlength='2' id='Rad".$i."' value='' /></td>".
-            "<td><input class='tip' type='text' size='10' maxlength='30' id='Chk".$i."' value='' /></td>".
-            "<td><input class='tip' type='text' size='10' maxlength='30' id='Tlis".$i."' value='' /></td>".
-            "<td><input class='tip' type='text' size='10' maxlength='30' id='Flis".$i."' value='' /></td></tr>";         
+            "<td><input class='tip' type='text' size='2' maxlength='30' id='Chk".$i."' value='' /></td>".
+            "<td><input class='tip' type='text' size='8' maxlength='50' id='Tlis".$i."' value='' /></td>".
+            "<td><input class='tip' type='text' size='11' maxlength='50' id='Flis".$i."' value='' /></td></tr>";         
         }
         $respuesta .= '</table>';
         echo $respuesta;
         return $respuesta; 
-
     } 
     
  /*  
@@ -108,10 +108,18 @@ if(isset($_POST["accion"])){
                 $autor = $rec[0];
                 $lsruta = $rec[1];
                 $ruta = $rec[2];
-                $prefijo = $rec[3];
+                $prefijo = str_replace("_","", ucfirst($rec[3]));
                 $indice = $rec[4];
-                $orden = $rec[5];
-                $tabla = $rec[6];
+                $orden = $rec[5];                
+                $tabla = strtolower($rec[6]);
+                $tablaSinS = $tabla;
+                $m=strlen ($tabla);
+                if(substr($tablaSinS,$m-1,1)==='s'){
+                    $tablaSinS=substr($tablaSinS,0,$m-1);
+                }
+                $tablaPrimeraMayuscula = ucfirst($tablaSinS);
+                $tablaPrefijo = $prefijo;                
+                $prefijo = $rec[3];
                 $frm = $rec[7];
                 $hdr = $rec[8];
                 $textArea  = $rec[9];
@@ -119,16 +127,18 @@ if(isset($_POST["accion"])){
                 $js  = $rec[11];
                 $mod  = $rec[12]; 
                 $view  = $rec[13];
-                $indiceCmp = $indice; // str_replace($prefijo,'', $indice);
+                $exp =$rec[14];
+                $base =$rec[15];
+                $indiceCmp = $indice; 
+                
             }else{
                 $j=$i-1;
                 for ($k=0;$k<=10;$k++){
                     if ($k==0){
-                        $column[$j][$k]= $rec[$k]; // str_replace($prefijo,'', $rec[$k]);
+                        $column[$j][$k]= strtolower($rec[$k]); 
                     }
                     else{
-                        $column[$j][$k]=$rec[$k];
-
+                        $column[$j][$k]=strtolower($rec[$k]);
                     }  
                 }    
             }
@@ -138,9 +148,14 @@ if(isset($_POST["accion"])){
     $n=0;
     $f=0;
     $err='';
+    $empresa='';
+    $orden='';
+    $index='';
+    $reqBody='';
+    $reqBodyId='';
     for($l=0;$l < count($column);$l++) {
         if($column[$l][8]!=''){
-            $file=$lsruta.$column[$l][8];
+            $file=$lsruta.'/'.$column[$l][8];
              $pos = strpos($file, ".txt");
              if ($pos ==  true){
                 $exists = is_file( $file );
@@ -163,709 +178,673 @@ if(isset($_POST["accion"])){
 //  Modelo
 //
     $select = '';
+    $selectSinId = '';
+    $update = '';
+    $comasSelect='';
     $fileLista=array();
     $fileCampos=array();
     $l=0;
     for ($x=0;$x<=$j;$x++){
         $select .= $column[$x][0] ;
-        if ($x<$j){$select .= ', ';}
+        if ($x<$j){
+            $select .= ', '; 
+        }
+
         if($column[$x][8]!=''){
             $fileLista[$l] = $column[$x][8];
             $fileCampos[$l] = $column[$x][9];
             $l+=1;
         }
+        if($column[$x][4]==='on'){
+            $index=$column[$x][0];
+            $reqBodyId='req.body.'.$index;
+        } else{
+           $update .= $column[$x][0] .' = ?';
+           $selectSinId .=$column[$x][0];;
+           $reqBody .= 'req.body.'.$column[$x][0];
+           if ($x<$j){
+                $reqBody .= ', ';
+                $selectSinId.= ', ';
+                $update .= ', ';
+                $comasSelect .=' ?,';
+           }else{
+               $comasSelect .=' ?';
+           }
+        }       
+        if($column[$x][5]==='on'){
+            $orden=$column[$x][0];
+        } 
+        if($column[$x][6]==='on'){
+            $empresa=$column[$x][0];
+        }        
     }
 
-    $directorio = $ruta."modulos";
-
-    if (!is_dir($directorio)) {
-        mkdir($directorio, 0777);
-    }
-
-$hoy = date("l,M d, Y g:i:s");
-$archivo = $directorio.'/mod_'.$tabla.'.php';    
-$ar=fopen($archivo,"w") or die("Problemas en la creacion");
-
-  for($n=0;$n < count($archTextos);$n++)
-    {
-       graba($ar,$archTextos[$n]); 
-    }
-//
-graba($ar,"<?php");
-if ($hdr=='si'){
-   graba($ar,"include_once(\"clsConection.php\");");
-}else
-{
-   graba($ar,"include_once(\"../bin/cls/clsConection.php\");");
-}
-
-$lin='';
-graba($ar,"\$objClase = new DBconexion();");
-graba($ar,"\$con = \$objClase->conectar();");
-graba($ar,"\$data = json_decode(file_get_contents(\"php://input\")); ");
-graba($ar,"\$op = mysqli_real_escape_string(\$con, \$data->op);");
-graba($ar,"");
-graba($ar,"switch (\$op)");
-graba($ar,"{");
-graba($ar,"    case 'r':");
-graba($ar,"        leeRegistros(\$data);");
-graba($ar,"        break;");
-graba($ar,"    case 'b':");
-graba($ar,"        borra(\$data);");
-graba($ar,"        break;");
-graba($ar,"    case 'a':");
-graba($ar,"        actualiza(\$data);");
-graba($ar,"        break; ");
-graba($ar,"    case 'u':");
-graba($ar,"        unRegistro(\$data);");
-graba($ar,"        break;"    );
-$u=0;
-for ($x=0;$x<=$j;$x++){ 
-    if ($column[$x][8]!='' && $column[$x][9]!=''){ 
-        $table= $column[$x][8];
-        $inom= $column[$x][9];
-        $pos = strpos($table, ".txt");
-        if ($pos == false) {
-            graba($ar,"    case '". $u . "':");
-            graba($ar,"        lista". $u . "(\$data);");
-            graba($ar,"        break;"    );
-            $u+=1;
-        }
-    }                
-}
-
-graba($ar,"}");
-graba($ar,"  " ); 
-graba($ar,"");
-graba($ar," ");
-graba($ar,"    function  leeRegistros(\$data) ");
-graba($ar,"    { ");
-graba($ar,"      \$objClase = new DBconexion(); ");
-graba($ar,"      \$con = \$objClase->conectar(); ");
-graba($ar,"       { ");
-graba($ar,"            \$query = \"SELECT  " . $select . "\" ");
-graba($ar,"                    . \" FROM " .$tabla . " ORDER BY " .$orden . " \";             ");
-graba($ar,"            \$result = mysqli_query(\$con, \$query); ");
-graba($ar,"            \$arr = array(); ");
-graba($ar,"            if(mysqli_num_rows(\$result) != 0)  ");
-graba($ar,"                { ");
-graba($ar,"                    while(\$row = mysqli_fetch_assoc(\$result)) { ");
-graba($ar,"                        \$arr[] = \$row; ");
-graba($ar,"                    } ");
-graba($ar,"                } ");
-graba($ar,"            echo \$json_info = json_encode(\$arr); ");
-graba($ar,"       } ");
-graba($ar,"    } ");
-graba($ar," " );
-graba($ar,"    function borra(\$data)" );
-graba($ar,"    { ");
-graba($ar,"        \$objClase = new DBconexion(); ");
-graba($ar,"        \$con = \$objClase->conectar(); ");
-graba($ar,"        \$" . $indice . " = 0; ");
-graba($ar,"        \$query = \"DELETE FROM " . $tabla . " WHERE " . $indice . "=\$data->" . $indice . "\"; ");
-graba($ar,"        mysqli_query(\$con, \$query); ");
-graba($ar,"        echo 'Ok'; ");
-graba($ar,"    }" );
-graba($ar," ");
-graba($ar,"    function actualiza(\$data)" );
-graba($ar,"    {     ");
-graba($ar,"        \$objClase = new DBconexion(); ");
-graba($ar,"        \$con = \$objClase->conectar(); ");
-graba($ar,"        \$op =  \$data->op;	 ");
-        $insert = '';
-        $values = '';
-        $update = '';
-       
-        for ($x=0;$x<=$j;$x++){
-            graba($ar,"        \$" . $column[$x][0] . " =  \$data->" .$column[$x][0] . "; ");
-            If($column[$x][0] != $indiceCmp){
-                $insert .= $column[$x][0];
-                $values .=   "\$" . $column[$x][0] ;
-                $update .=  $column[$x][0] . " = '\"." . "\$" .  $column[$x][0] . ".\"'";
-                 if ($x<$j){$insert .= ', '; $values .= ".\"', '\"." ;$update .= ', ';}
-            }
-         
-        }
-        $values .= ".\"')\"; ";  
-graba($ar,"   ");
-graba($ar,"        if(\$" . $indice ."  == 0) ");
-graba($ar,"        { ");
-graba($ar,"           \$query = \"INSERT INTO " . $tabla . "(" . $insert . ")\";"); 
-graba($ar,"           \$query .= \"  VALUES ('\" . $values ");
-graba($ar,"            mysqli_query(\$con, \$query);" );
-graba($ar,"            echo 'Ok';");
-graba($ar,"        } ");
-graba($ar,"        else ");
-graba($ar,"        { ");
-graba($ar,"            \$query = \"UPDATE " .$tabla ."  SET " . $update . " WHERE " .$indice. " = \".$" .$indice.";");
-graba($ar,"            mysqli_query(\$con, \$query); ");
-graba($ar,"            echo 'Ok';");
-graba($ar,"        } ");
-graba($ar," ");
-graba($ar,"    } ");
-graba($ar," ");
-graba($ar,"    function unRegistro(\$data) ");
-graba($ar,"    { ");
-graba($ar,"        \$objClase = new DBconexion(); ");
-graba($ar,"        \$con = \$objClase->conectar();	 ");	
-graba($ar,"        \$". $indice . " = \$data->". $indice . ";      " );  
-graba($ar,"        \$query = \"SELECT  " . $select . "  \" . ");
-graba($ar,"                    \" FROM " . $tabla . "  WHERE " . $indice  . " = \" . \$" . $indice . "  . ");
-graba($ar,"                    \" ORDER BY " . $orden . " \"; ");
-graba($ar,"        \$result = mysqli_query(\$con, \$query); ");
-graba($ar,"        \$arr = array(); ");
-graba($ar,"        if(mysqli_num_rows(\$result) != 0)  ");
-graba($ar,"        { ");
-graba($ar,"            while(\$row = mysqli_fetch_assoc(\$result)) { ");
-graba($ar,"                \$arr[] = \$row;");
-graba($ar,"           } ");
-graba($ar,"        } ");
-graba($ar,"        echo \$json_info = json_encode(\$arr); ");
-graba($ar," ");
-graba($ar,"    } ");
-graba($ar," ");
-graba($ar,"	 ");
-//graba($ar,"}");
-$numero = sizeof($fileLista);
-if ($numero>0){
-    for($i=0;$i<count($fileLista);$i++) {
-        $table = $fileLista[$i];
-        $campos = $fileCampos[$i];
-        $cmpos = explode(',', $campos); 
-        $pos = strpos($table, ".txt");
-        if ($pos == false) {
-            graba($ar,"    function lista".$i."() ");
-            graba($ar,"    { ");
-            graba($ar,"        \$objClase = new DBconexion(); ");
-            graba($ar,"        \$con = \$objClase->conectar();	 ");
-            graba($ar,"         \$query = \"SELECT ". $cmpos[0]. ", ". $cmpos[1] . " FROM " . $table . " ORDER BY ". $cmpos[1]. "\";" ); 
-            graba($ar,"         \$result = mysqli_query(\$con, \$query); "); 
-            graba($ar,"         \$arr = array(); "); 
-            graba($ar,"         if(mysqli_num_rows(\$result) != 0)");
-            graba($ar,"         { "); 
-            graba($ar,"             while(\$row = mysqli_fetch_assoc(\$result)) {"); 
-            graba($ar,"                 \$arr[] = \$row;"); 
-            graba($ar,"              }"); 
-            graba($ar,"         } ");
-            graba($ar,"      echo \$json_info = json_encode(\$arr); ");
-            graba($ar,"    } ");
-            graba($ar," ");            
-        }
-    }graba($ar," "); 
-}
+    //
+    //  SERVER
+    //
+    $hoy = date("l,M d, Y g:i:s");   
+    $alvaro = $autor. "   " . $hoy ."  ";
     
-}
-
-
-
-
-$alvaro = $autor. "   " . $hoy ."  ";
-fputs($ar,"// >>>>>>>   Creado por: ".$alvaro." <<<<<<< ");
-fputs($ar,"\n");
-fclose($ar);
-//
-//  Controladora
-//
-$directorio = $ruta."controller";
-
-if (!is_dir($directorio)) {
-    mkdir($directorio, 0777);
-}
-$archivo = $directorio.'/'.$tabla.'.ctrl.js';    
-$ar=fopen($archivo,"w") or die("Problemas en la creacion");   
- $puntos='';        
-if ($hdr=='si'){
-    $puntos='../';
-}
-graba($ar,"var app = angular.module('app', []);");
-graba($ar,"app.controller('mainController',['\$scope','\$http', function(\$scope,\$http){");
-graba($ar,"    \$scope.form_title = 'Lista de ". $tabla ."';");
-graba($ar,"    \$scope.form_btnNuevo = 'Nuevo registro';");
-graba($ar,"    \$scope.form_btnEdita = 'Edita';");
-graba($ar,"    \$scope.form_btnElimina = 'Elimina';");
-graba($ar,"    \$scope.form_btnAnula = 'Cerrar';");
-graba($ar,"    \$scope.form_btnActualiza = 'Actualizar';");
-graba($ar,"    \$scope.form_titModal = 'Actualiza lista de registros';");
-graba($ar,"    \$scope.form_Phbusca = 'Consulta';");
-graba($ar," ");
-
-for ($x=0;$x<=$j;$x++){
-    if($column[$x][3]>0){
-    $m=$column[$x][3];
-        for ($i=0;$i<$m;$i++){
-            graba($ar,"    \$scope.form_Activo".$x.$i. " = ".$i.";");               
-        }
-    }
-
-    if($column[$x][7]>0){
-        $m=$column[$x][7];
-        for ($i=0;$i<$m;$i++){
-            graba($ar,"    \$scope.form_Activo".$x.$i. " = 'Opcion ".$x.$i."';");               
-        }
-    } 
-}
-
-$numero = sizeof($fileLista);
-
-if ($numero>0){
-     for ($x=0;$x<$numero;$x++){
-         $tab = $fileLista[$x];
-         $xx = strpos($tab, ".txt");
+    // Ruter
     
-         if($xx > 0){
-            $tmp= substr($tab, 0, $xx);
-            $graba="    \$scope.".$tmp." = {model: null,"; 
-            graba($ar,$graba);
-            $graba="    availableOptions: ["; 
-            graba($ar,$graba);
-            
-            $tab = $lsruta.$tab;
+    $directorio = $ruta."/server/routes";
+    if (!is_dir($directorio)) { 
+        mkdir($directorio, 0777,true);
+    }
+   
+    $archivo = $directorio.'/'.$tabla.'_route.js';    
+    $ar=fopen($archivo,"w") or die("Problemas en la creacion");
+
+    graba($ar,"const express = require('express');");
+    graba($ar,"const router = express.Router();");
+    graba($ar,"");
+    graba($ar,"const controller".$tablaPrefijo." = require('../controller/".$tabla."Controller');");
+    graba($ar,"");
+    graba($ar,"router.get('/lee".$tablaPrimeraMayuscula.":id',controller".$tablaPrefijo.".lee".$tablaPrimeraMayuscula.");");
+    graba($ar,"router.get('/trae".$tablaPrimeraMayuscula."',controller".$tablaPrefijo.".trae".$tablaPrimeraMayuscula.");");
+    graba($ar,"router.post('/update".$tablaPrimeraMayuscula."',controller".$tablaPrefijo.".update".$tablaPrimeraMayuscula.");");
+    graba($ar,"router.get('/delete".$tablaPrimeraMayuscula.":id', controller".$tablaPrefijo.".delete".$tablaPrimeraMayuscula.");");
+    graba($ar,"");
+    graba($ar,"module.exports = router; ");
+    fputs($ar,"// >>>>>>>   Creado por: ".$alvaro." <<<<<<< ");
+    fputs($ar,"\n");
+    fclose($ar);
+
  
-            $fp = fopen($tab, "r"); 
-            if ($fp){
-            $leer=0;
-            while(!feof($fp)) {
-                $linea = fgets($fp);
-                $rec = explode(',',$linea);
-                if ($leer == 0){
-                    $cod = strtolower($rec[0]);
-                    $det = strtolower($rec[1]);
+    //  Controladora sentencias SQL
+   
+    $directorio = $ruta."/server/controller";
+    if (!is_dir($directorio)) { 
+        mkdir($directorio, 0777,true);
+    }
+    $archivo = $directorio.'/'.$tabla.'Controller.js'; 
+    $ar=fopen($archivo,"w") or die("Problemas en la creacion");
+    
+    graba($ar,"const controller = {};");
+    graba($ar,"");
+    graba($ar,"	controller.lee".$tablaPrimeraMayuscula." = (req, res) => {");
+    graba($ar,"		const data = req.body;");
+    graba($ar,"		var { id } = req.params;   "); 
+    graba($ar,"		let parts = id.split(':');");
+    graba($ar,"		empresa = parts[1];");
+    graba($ar,"		req.getConnection((err, conn) => {");
+    graba($ar,"");
+    graba($ar,"		var sql = 'SELECT ".$select."';");
+    graba($ar,"		sql += ' FROM ".$tabla." ';");
+    graba($ar,"		sql += ' WHERE ".$empresa." = ' + empresa;");
+    graba($ar,"		sql += ' ORDER BY ".$orden."';");
+    graba($ar,"	//	console.log(sql);");
+    graba($ar,"		conn.query(sql, (err, respuesta)=> { ");
+    graba($ar,"				if (respuesta.length>0){ ");
+    graba($ar,"					res.send(respuesta); ");
+    graba($ar,"				} ");
+    graba($ar,"				else { ");
+    graba($ar,"				  res.json(err); ");
+    graba($ar,"				} ");
+    graba($ar,"			}); ");
+    graba($ar,"		}); ");
+    graba($ar,"	};");
+    graba($ar,"");
+       
+    graba($ar,"   controller.trae".$tablaPrimeraMayuscula." = (req, res) => {   ");
+    graba($ar,"     req.getConnection((err, conn) => {");
+    graba($ar,"		var { id } = req.params;    ");
+    graba($ar,"		let parts = id.split(':');");
+    graba($ar,"		id = parts[1];");
+    graba($ar,"		var sql= 'SELECT ". $index .", ". $orden . "'");
+    graba($ar,"		sql += ' FROM conceptos WHERE ".$empresa." =  ? AND ESTADO = \"A\"';");
+    graba($ar,"		sql += ' ORDER BY ". $orden . "' ");
+    graba($ar,"	//	console.log(sql);");
+    graba($ar,"		conn.query(sql,[id], (err, respuesta)=> { ");
+    graba($ar,"		if (respuesta.length>0){ ");
+    graba($ar,"		  res.send(respuesta); ");
+    graba($ar,"		} ");
+    graba($ar,"		else { ");
+    graba($ar,"			res.json(err); ");
+    graba($ar,"		} ");
+    graba($ar,"		 }); ");
+    graba($ar,"	}); ");
+    graba($ar,"	}; ");
+    graba($ar," "); 
+    
+    graba($ar,"    controller.update".$tablaPrimeraMayuscula." = (req, res) => {");
+    graba($ar,"    req.getConnection((err, conn) => {");
+    graba($ar,"      a='".$reqBody."';");
+    graba($ar,"      console.log(a);");
+    graba($ar,"     if(".$reqBodyId."==='0')  {");
+    graba($ar,"      var sql= 'INSERT INTO " .$tabla . "(" . $selectSinId . ") '; "); 
+    graba($ar,"      sql += ' VALUES ( ". $comasSelect. " ) ' ;");
+    graba($ar,"   //   console.log(sql+' insert');");
+    graba($ar,"      conn.query(sql, [". $reqBody . "], ");
+    graba($ar,"        (err, rows) => {");
+    graba($ar,"        res.err;");
+    graba($ar,"      });");
+    graba($ar,"    }");
+    graba($ar,"    else{");
+    graba($ar,"      var sql= 'UPDATE " .$tabla . "  SET ". $update ."' ;");
+    graba($ar,"      sql += ' WHERE ". $index ." = ? '");
+    graba($ar,"  //    console.log(sql+' update');");
+    graba($ar,"        conn.query(sql, [". $reqBody .", ". $reqBodyId. "], ");
+    graba($ar,"        (err, rows) => {");
+    graba($ar,"     res.err;");
+    graba($ar,"      });    ");  
+    graba($ar,"    }");
+    graba($ar,"    })  ");
+    graba($ar,"   }; ");
+    graba($ar,"  ");  
+
+    graba($ar,"    controller.delete".$tablaPrimeraMayuscula." = (req, res) => {");
+    graba($ar,"        var { id } = req.params;    ");
+    graba($ar,"        let parts = id.split(':');");
+    graba($ar,"        id = parts[1];");
+    graba($ar,"        req.getConnection((err, conn) => {");
+    graba($ar,"           var sql = 'DELETE FROM " .$tabla. " WHERE ".$index." = ?'");
+    graba($ar,"           conn.query(sql,[id], ");
+    graba($ar,"           (err, rows) => {");
+    graba($ar,"            res.err;");
+    graba($ar,"           });");
+    graba($ar,"         })");
+    graba($ar,"    };");
+    graba($ar,"");
+    graba($ar,"     module.exports = controller;");
+    graba($ar,"");
+ 
+    fputs($ar,"// >>>>>>>   Creado por: ".$alvaro." <<<<<<< ");
+    fputs($ar,"\n");
+    fclose($ar);
+    
+    //
+    //  CLIENTE
+    //    
+    $directorio = $ruta."/client/src/views";
+    if (!is_dir($directorio)) { 
+        mkdir($directorio, 0777,true);
+    }
+    //
+    //    Vista - formulario  + + + + + + + + + + + + + +  F O R M U L A R I O
+    //
+   $archivo = $directorio.'/'.$tabla.'.js'; 
+   $ar=fopen($archivo,"w") or die("Problemas en la creacion");
+   
+    graba($ar,"import React, { Fragment, useEffect, useState} from 'react';");
+    graba($ar,"import {useForm} from 'react-hook-form';");
+    graba($ar,"import Pagination from 'react-paginate';");
+    graba($ar,"import Axios from 'axios';");
+    graba($ar,"import Modal from 'react-modal';");
+    graba($ar,"import '../App.css';");
+    graba($ar,"");
+    graba($ar,"const Mas". $tablaPrimeraMayuscula ." = () => {");
+    graba($ar,"");
+    graba($ar,"    // formato de  la modal de la tabla : ".$tabla."");
+    graba($ar,"    const customStylesForm = {");
+    graba($ar,"        content : {");
+    graba($ar,"        top                   : '40%',");
+    graba($ar,"        left                  : '50%',");
+    graba($ar,"        right                 : 'auto',");
+    graba($ar,"        bottom                : 'auto',");
+    graba($ar,"        marginRight           : '-50%',");
+    graba($ar,"        transform             : 'translate(-50%, -50%)'");
+    graba($ar,"        }");
+    graba($ar,"    };");
+    graba($ar,"");
+    graba($ar,"    // formato de  la ventada modal de borarado");
+    graba($ar,"    const customStylesDelete = {");
+    graba($ar,"        content : {");
+    graba($ar,"        top                   : '50%',");
+    graba($ar,"        left                  : '50%',");
+    graba($ar,"        right                 : 'auto',");
+    graba($ar,"        bottom                : 'auto',");
+    graba($ar,"        marginRight           : '-50%',");
+    graba($ar,"        transform             : 'translate(-50%, -50%)'");
+    graba($ar,"        }");
+    graba($ar,"    }; ");
+    graba($ar," ");
+
+    graba($ar,"       // Registro de lectura tabla principal y del select fijo y variable");
+    graba($ar,"   const {register, errors, handleSubmit} = useForm();");
+    graba($ar,"   const [" . $tablaSinS . "Datos, set" . $tablaPrimeraMayuscula . "Datos] = useState([]);");
+    graba($ar,"   const [offset, setOffset] = useState(0);");
+    for ($x=0;$x<=$j;$x++){
+        if($column[$x][8]!='' && $column[$x][9]===''){
+           graba($ar,"   const [".$column[$x][0]."Fijo, set".ucfirst($column[$x][0])."Fijo] = useState([]);");
+            $mo=0;
+            $selectF='';           
+            $fil = $lsruta.'/'.$column[$x][8];
+            $file = fopen($fil, "r") or exit("Unable to open file!");
+            while(!feof($file))
+            {
+             $t =  fgets($file);             
+             $rec = explode(";", $t); 
+          //    echo ($rec[0].' '.$rec[1]);
+              if($mo===0){ 
+                  $selectF='[';                
+              }else{
+                $selectF .= "{id:'".$rec[0]."',detalle:'".$rec[1]."'},";
+              }
+             $mo+=1;
+            }
+
+            if($mo>0){ $selectF .=']';
+                graba($ar,"      set".ucfirst($column[$x][0])."Fijo(".$selectF.");");      
+            }           
+        }
+        if($column[$x][8]!='' && $column[$x][9]!=''){
+           graba($ar,"   const [".$column[$x][0]."Vble, set".ucfirst($column[$x][0])."Vble] = useState([]);");
+        }
+    }
+    graba($ar,"");
+    graba($ar,"   const[codBorrado, setCodBorrado] = useState('');");
+    graba($ar,"   const[idBorrar, setIdBorrar] = useState(0);");
+    graba($ar,"   const[empresa, setEmpresa] = useState(1);");
+ 
+    // Calcula si hay Botones radio y/o check box   
+    $radio='';
+    $check='';
+    $datosView='';
+    $miTxt="";
+    $xt=0;
+    for ($x=0;$x<=$j;$x++){
+        if($column[$x][3]!='0'){ 
+            if(is_numeric($column[$x][3])){
+                $xt=$column[$x][3]-1;
+                $miTxt="        const btnRadio".ucfirst($column[$x][0]). " = [";
+                for ($m=0;$m < $column[$x][3]; $m++){
+                    $miTxt .= "{id:'" . $m . "', detalle:'Estado de " . $m . "'}";
+                    if($m<$xt){
+                        $miTxt .= ", ";
+                    }
                 }
-               else{ 
-                   $dosPuntos=":'";
-                   $coma=",";
-                   if(feof($fp)){ $coma="]}";}
-                   $graba = "{".$cod.$dosPuntos.$rec[0]."',".$det .$dosPuntos.trim($rec[1])."'}".$coma;   
-                   graba($ar,$graba);
-               }
-                 $leer +=1;
+                 $miTxt .= "];";
             }
-            fclose($fp);                        
-         }
- else {
-      graba($ar,'// error no abre el archivo : '.$tab);
- }
-         }
-     }
-}
-
-graba($ar,"");
-
-    for ($x=0;$x<=$j;$x++){
-        $colAux=str_replace($prefijo,'', $column[$x][2]);
-        graba($ar,"    \$scope.form_" . $column[$x][0] . " = '" . $colAux . "';");
-    }
-graba($ar,"");        
-    for ($x=0;$x<=$j;$x++){
-        $colAux=str_replace($prefijo,'', $column[$x][2]);
-        graba($ar,"    \$scope.form_Ph" . $column[$x][0] . " = 'Digite " . strtolower($colAux) . "';");
-    }
-
-graba($ar,"   ");
-
-graba($ar,"    ");
-graba($ar,"    var defaultForm= {");
-    $regis="";
-    $porDefecto='';
-    for ($x=0;$x<=$j;$x++){
-        $val = "''";
-        $coma = "";
-        $regis.= "'" .$column[$x][0] ."':".$column[$x][0]; 
-        if ($x<$j){$coma = ",";  $regis.= ", ";}
-        if (substr($column[$x][1],0,3)=='int'){$val=0;} 
-        graba($ar,"        " . $column[$x][0] . ":".$val.$coma);         
-    }
-$porDefecto=$regis;
-graba($ar,"   };");
-graba($ar,"    ");
-if (sizeof($fileLista) > 0){
-    graba($ar,"    getCombos();");
-}
-graba($ar,"    ");
-graba($ar,"    getInfo();");
-graba($ar,"    ");
-if($frm=='fr'){
-    graba($ar," $('#idForm').slideToggle();");
-    graba($ar,"");
-    graba($ar,"    function getInfo(){");
-    graba($ar,"        \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=r',{'op':'r'}).success(function(data){");
- //   graba($ar,"    \$scope.registro.empresa_nombre = data[0].empresa_nombre; ");
-
-    $regis="";  
-    for ($x=0;$x<=$j;$x++){
-        $val = "''";
-        $coma = "";
-        $regis = "\$scope.registro." .$column[$x][0] ." = data[0].".$column[$x][0]."; "; 
-        graba($ar,"        " . $regis );         
-    }   
-    graba($ar,"        });   ");
-    graba($ar,"    }");
-    graba($ar,"");        
-}
-else {
-    graba($ar,"    function getInfo(){");
-    graba($ar,"        \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=r',{'op':'r'}).success(function(data){");
-    graba($ar,"        \$scope.details = data;");
-    graba($ar,"        });       ");
-    graba($ar,"    }");
-    graba($ar,"");
-}
-
-graba($ar,"    function getCombos(){");
-$numero = sizeof($fileLista);
-if ($numero>0){
-    $u=0;
-    for($i=0;$i<$numero;$i++) {
-        $table = $fileLista[$i];
-        $pos = strpos($table, ".txt");
-        if ($pos==0){
-           $idSel=  substr($table, 0, $pos);
-        graba($ar,"          \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=".$u."',{'op':'".$u."'}).success(function(data){");      
-        graba($ar,"         \$scope.operators".$u." = data;");      
-        graba($ar,"         });");
-        $u+=1;
+            graba($ar,$miTxt);
+        }
+        if($column[$x][7]!='0'){
+            if($check != ''){$check.='<>';}
+            $check.=$column[$x][0].'||'.$column[$x][7];
+        }
+        $miTxt="''";
+      
+        if(strtoupper($column[$x][10])==='N'){
+            $miTxt="'0'";
+        }    
+        if(strtoupper($column[$x][10])==='D'){
+            $miTxt = 'isoDate';
+        }
+        $datosView .= $column[$x][0].':'.$miTxt;
+        if ($x<$j){
+            $datosView .= ", ";
         }
     }
-}
-graba($ar,"} ");
-graba($ar," ");
+    
+        // Tabla principal valores iniciales
+    graba($ar,"    var d = new Date();");
+    graba($ar,"    let isoDate=fecha(d.toISOString());");
+    graba($ar,"    var [".$tablaSinS. "Select, set".ucfirst($tablaSinS). "Select] = useState({");
+    graba($ar,$datosView);
+    graba($ar,"    });");
 
-graba($ar,"\$scope.show_form = true;");
-graba($ar,"// Function to add toggle behaviour to form");
-graba($ar,"\$scope.formToggle =function(){");
-graba($ar,"\$('#idForm').slideToggle();");
-graba($ar,"//\$scope.registro = '';");
-graba($ar,"\$scope.". $indice ."=0;");
-graba($ar,"// \$scope.grupo_activo='A';");
-graba($ar,"// \$scope.grupoactivo = true;");
-graba($ar,"\$('#idForm').css('display', 'none');");
-graba($ar,"");
-graba($ar,"};");
-graba($ar,"");
-graba($ar,"\$scope.show_form = true;");
-graba($ar,"// Function to add toggle behaviour to form");
-graba($ar,"\$scope.formToggle =function(){");
-graba($ar,"\$('#idForm').slideToggle();");
-graba($ar,"        \$scope.formato.\$setPristine();");
-graba($ar,"        \$scope.registro = angular.copy(defaultForm);");
-graba($ar,"");
-graba($ar,"};");
-graba($ar,"");
-graba($ar,"\$scope.registro = function(info){ alert ('inserta');};");
-graba($ar,"");
-graba($ar,"");
-graba($ar,"    \$scope.registro =function(info){ ");
-graba($ar,"            alert ('actualiza');   ");
-graba($ar,"            \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=a',{'op':'a', " . $porDefecto . "}).success(function(data){");
-graba($ar,"");
-graba($ar,"            \$scope.show_form = true;");
-graba($ar,"            alert(data);");
-graba($ar,"            if (data === true) {");
-graba($ar,"            getInfo();");
-graba($ar,"            }");
-graba($ar,"            });");
-graba($ar,"     };");
-graba($ar,"");
-graba($ar,"    \$scope.registro = {};");
-graba($ar,"    ");
-graba($ar,"    \$scope.editInfo =function(info)");
-graba($ar,"    {  ");
-graba($ar,"        \$scope.registro =  info;  ");
-graba($ar,"        \$('#idForm').slideToggle();");
-graba($ar,"       // if(registro.grupo_activo=='A'){registro.grupoactivo=true;}");
-graba($ar,"       // else{registro.grupoinactivo=true;}");
-graba($ar,"");
-graba($ar,"    };");
-graba($ar,"");
-graba($ar,"    \$scope.deleteInfo =function(info)");
-graba($ar,"    { ");
-graba($ar,"        if (confirm('Desea borrar el registro con nombre : '+info." . $orden . "+' ?')) {  ");
-graba($ar,"            \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=b',{'op':'b', '" .$indice ."':info." .$indice ."}).success(function(data){");
-graba($ar,"            if (data === 'Ok') {");
-graba($ar,"            getInfo();");
-graba($ar,"            alert ('Registro Borrado ');");
-graba($ar,"            }");
-graba($ar,"            });");
-graba($ar,"         }");
-graba($ar,"    };");
-graba($ar,"");
-graba($ar,"    \$scope.updateInfo =function(info)");
-graba($ar,"    {");
-    $regis="";  
+    graba($ar,"    // Validación");
+    graba($ar,"    const selecciona".$tablaPrimeraMayuscula ."=(elemento, caso)=>{");
+    graba($ar,"        set".$tablaPrimeraMayuscula ."Select(elemento);");
+    graba($ar,"        (caso === 'Editar')&&setIsOpen(true)");
+    graba($ar,"    }");
+    graba($ar,"");
+    graba($ar,"    // metodos de la Modal general y del boton delete");
+    graba($ar,"    const [modalIsOpen,setIsOpen] = React.useState(false);");
+    graba($ar,"    const [modalDeleteIsOpen,setDeleteIsOpen] = React.useState(false);");
+    graba($ar," ");
+    graba($ar,"    function openModal() {");
+    graba($ar,"        setIsOpen(true);");
+    graba($ar,"    }");
+    graba($ar,"");
+    graba($ar,"    function afterOpenModal() {");
+    graba($ar,"   }");
+    graba($ar,"");
+    graba($ar,"    function closeModal(){");
+    graba($ar,"        setIsOpen(false);");
+    graba($ar,"   }");
+    graba($ar,"");
+    graba($ar,"    function openModalDelete() {");
+    graba($ar,"        setDeleteIsOpen(true);");
+    graba($ar,"    }");
+    graba($ar,"");
+    graba($ar,"    function closeModalDelete(){");
+    graba($ar,"        setDeleteIsOpen(false);");
+    graba($ar,"    }");
+    graba($ar,"");
+
+    
+    graba($ar,"      // Fecha de ISO a amd");
+    graba($ar,"    function fecha(fch){");
+    graba($ar,"        if (fch != null && fch !== undefined) {");
+    graba($ar,"           fch = fch.split('T')[0]");
+    graba($ar,"        }else{");
+    graba($ar,"            fch=new Date();");
+    graba($ar,"        }");
+    graba($ar,"       return fch;");
+    graba($ar,"    }");
+    graba($ar,"");
+    graba($ar,"    //  Registro Nuevo valores iniciales");
+    graba($ar,"    function recordNuevo(){");
+    graba($ar,"        var d = new Date();");
+    graba($ar,"        let isoDate=fecha(d.toISOString());");
     for ($x=0;$x<=$j;$x++){
-        $regis.= "'" .$column[$x][0] ."':info.".$column[$x][0]; 
-        if ($x<$j){$regis.= ", ";}      
+        $miTxt="''";
+       // echo($column[$x][10]);
+        if(strtoupper($column[$x][10])==='N'){
+            $miTxt="'0'";
+        }    
+        if(strtoupper($column[$x][10])==='D'){
+            $miTxt = 'isoDate';
+        }
+        $text=$tablaSinS."Select.".$column[$x][0]."=".$miTxt.";";
+        graba($ar,"     ".$text);
     }
-graba($ar,"        er='';");
-
+    graba($ar,"        openModal();");
+    graba($ar,"    }");  
+    graba($ar," // botones de la tabla");
+    graba($ar,"    function cambiaRec(txt){");
+    graba($ar,"        openModal();");
+    graba($ar,"    }");
+    graba($ar,"");
     for ($x=0;$x<=$j;$x++){
-        if ($column[$x][6]!=''){
-graba($ar,"        if(\$('#".$column[$x][0]."').val()===''){er+='falta ". strtolower($column[$x][2])."\\n';}");            
-        }  
-        else {
-           graba($ar,$x.'  '.$column[$x][6]); 
+        if($column[$x][3]>'0' || $column[$x][7]>'0'){
+            graba($ar,"    function changeEstado". ucfirst($column[$x][0])."(estado){");
+            graba($ar,"        ".$tablaSinS."Select.".$column[$x][0]."Estado = estado;");
+            graba($ar,"    }");
         }
     }
+    graba($ar," ");   
+    graba($ar,"    function confirmaBorraRec(txt){");
+    graba($ar,"        Axios.get('http://localhost:3001/delete".$tablaPrimeraMayuscula.":'+ idBorrar )");
+    graba($ar,"        .then( alert('Registro borrado'),");
+    graba($ar,"            response=>{");           
+    graba($ar,"            handlePageClick()");
+    graba($ar,"        .catch((err) => console.error(err));");
+    graba($ar,"        });");
+    graba($ar,"        remove(idBorrar)");
+    graba($ar,"        setDeleteIsOpen(false);");
+    graba($ar,"    }");
+    graba($ar,"");
+    graba($ar,"    function borraRec(txt){");
+    graba($ar,"        let i = txt.id");
+    graba($ar,"        setCodBorrado(txt.".$index."+' '+txt.".$orden.");");
+    graba($ar,"        setIdBorrar(txt.id)");
+    graba($ar,"        openModalDelete();");
+    graba($ar,"");
+    graba($ar,"    } ");   
+    graba($ar,"  ");  
 
-graba($ar,"        if (er==''){");
-graba($ar,"        \$http.post('".$puntos."modulos/mod_". $tabla . ".php?op=a',{'op':'a', ".$regis."}).success(function(data){");
-graba($ar,"        if (data === 'Ok') {");
-graba($ar,"            getInfo();");
-graba($ar,"            alert ('Registro Actualizado ');");
-graba($ar,"            \$('#idForm').slideToggle();");
-graba($ar,"        }");
-graba($ar,"        });");
-graba($ar,"   }else{alert (er);}  ");
-graba($ar,"    };");
-graba($ar,"    ");
-graba($ar,"    \$scope.clearInfo =function(info)");
-graba($ar,"    {");
-graba($ar,"        console.log('empty');");
-graba($ar,"        \$('#idForm').slideToggle();");
-graba($ar,"    };");
-graba($ar,"");
-graba($ar,"}]);");
-graba($ar,"	 ");
-$alvaro = $autor. "   " . $hoy ."  ";
-fputs($ar,"// >>>>>>>   Creado por: ".$alvaro." <<<<<<< ");
-fputs($ar,"\n");
-fclose($ar);
+    graba($ar,"    // remueve de la lista traida de la base de datos"); 
+    graba($ar,"    const remove = (id) => {"); 
+    graba($ar,"        ". $tablaSinS. "Datos.splice(". $tablaSinS. "Datos.findIndex(txt => txt.id === id), 1);"); 
+    graba($ar,"        set". ucfirst($tablaSinS). "Datos([...". $tablaSinS. "Datos]);"); 
+    graba($ar,"    };"); 
+    graba($ar,""); 
+    graba($ar,"    const handleChangeSelectF = (e) => {"); 
+    graba($ar,"        ". $tablaSinS. "Select.". $tablaSinS. "SelectF=e.target.value"); 
+    graba($ar,"    }"); 
+    graba($ar,""); 
+    graba($ar,"    const handleChangeSelectV = (e) => {"); 
+    graba($ar,"        ". $tablaSinS. "Select.". $tablaSinS. "SelectV=e.target.value"); 
+    graba($ar,"    }"); 
+    graba($ar,"    // va a actualizar la información"); 
+    graba($ar,"    const submit".$tablaPrimeraMayuscula." = (data, event) =>{  ");      
+    graba($ar,"        Axios.post('http://localhost:3001/update".$tablaPrimeraMayuscula."', data )"); 
+    graba($ar,"        .then( alert('Información actualizada'),()=>{"); 
+    graba($ar,"            console.log(data)"); 
+    graba($ar,"        .catch((err) => console.error(err));"); 
+    graba($ar,"        })"); 
+    graba($ar,"        event.target.reset()"); 
+    graba($ar,"        remove(idBorrar) ");        
+    graba($ar,"        setIsOpen(false);"); 
+    graba($ar,"    }"); 
+    graba($ar,""); 
+    graba($ar,"    const [pageCount, setPageCount] = useState(0)"); 
+    graba($ar,"    const recordPerPage = 8;"); 
+    graba($ar,"    const [ activePage, setCurrentPage ] = useState( 1 );"); 
 
-
-//
-//    Vista - formulario  + + + + + + + + + + + + + +  F O R M U L A R I O
-//
-
-
-$directorio = $ruta."views";
-
-if (!is_dir($directorio)) {
-    mkdir($directorio, 0777);
-}
-$tit="Formulario ";
-if($frm=='cr'){$tit="Admin ";}
-$tit.=$tabla;
-$archivo = $directorio."/frm_".$tabla.'.php';    
-$ar=fopen($archivo,"w") or die("Problemas en la creacion");   
-
-if ($hdr=='si'){
-    graba($ar,"<html>");
-    graba($ar,"<head>");
-    graba($ar,"  <meta charset=\"utf-8\">");
-    graba($ar,"  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-    graba($ar,"  <title>" . $tit. "</title>");
-    graba($ar,"  <meta content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no\" name=\"viewport\">");
-    graba($ar,"  <link href=\"../css/bootstrap.min.css\" rel=\"stylesheet\" type=\"text/css\"/>");
-    graba($ar,"  <link href=\"../css/font-awesome.min.css\" rel=\"stylesheet\" type=\"text/css\"/>");
-    graba($ar,"  <link href=\"../css/atom.css\" rel=\"stylesheet\" type=\"text/css\"/>");
-    graba($ar,"</head>");
-    graba($ar,"<body class=\"hold-transition skin-blue sidebar-mini\"   ng-app=\"app\" >"); 
-}
-graba($ar,"");
-graba($ar,"    <div class=\"container \"  ng-controller=\"mainController\">");
-graba($ar,"        <h3 class=\"text-left\">{{form_title}}</h3>");
-
-// para el control de busqueda de registros
-if($frm=='cr'){
-    graba($ar,"        <nav class=\"navbar navbar-default navbar-mm col-md-8 col-md-offset-1\">");
-    graba($ar,"            <div class=\"navbar-header\">");
-    graba($ar,"                <div class=\"alert alert-default navbar-brand search-box\">");
-    graba($ar,"                    <button class=\"btn btn-primary btn-xs\" ng-show=\"show_form\" ");
-    graba($ar,"                    ng-click=\"formToggle()\">{{form_btnNuevo}}<span class=\"glyphicon\" aria-hidden=\"true\"></span></button>");
-    graba($ar,"                </div>");
-    graba($ar,"                <div class=\"alert alert-default input-group search-box\">");
-    graba($ar,"                    <span class=\"input-group-btn\">");
-    graba($ar,"                        <input type=\"text\" class=\"form-control mitexto busca-mm\" placeholder=\"{{form_Phbusca}}\" ng-model=\"search_query\" required>");
-    graba($ar,"                    </span>");
-    graba($ar,"                </div>");
-    graba($ar,"            </div>");
-    graba($ar,"        </nav>");
-}
-
-
-graba($ar,"        <div class=\"col-md-8 col-md-offset-1\">");
-graba($ar,"");
-graba($ar,"            <form class=\"form-horizontal alert alert-mm color-palette-set\" name=\"formato\" id=\"idForm\"");
-graba($ar,"                  ng-submit=\"insertInfo(registro);\" hidden=\"\">");
-graba($ar,"");
-graba($ar,"   ");             
-
-graba($ar,"");
-//0.columna|1.tipo|2.nombre|3.radio|4.indice|5.orden|6.valida|7.check|8.sele file|9.sele data
-$sel=0;
-$u=0;
-for ($x=0;$x<=$j;$x++){
-    if($column[$x][0]!=$indiceCmp ){   
-        graba($ar,"                <div class=\"form-group\">");
-        graba($ar,"                    <label class=\"control-label milabel col-md-4\" for=\"".$column[$x][0]."\">{{form_".$column[$x][0]."}}</label>");
-         if($column[$x][3]==0 && $column[$x][7]==0 ){  ///  Botones radio y check
-          if ($column[$x][8]==''){ 
-            $text = strtoupper($column[$x][10]); 
-
-            graba($ar,"                   <div class=\"col-md-6\">");
-            switch ($text) {
-                case 'T':  // text area
-                    graba($ar,"                    <textarea  class=\"form-control mitexto\"  cols=\"60\" rows=\"4\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
-                    graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
-                    graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\">");  
-                    graba($ar,"                    </textarea>");  
-                    break;
-                case 'P': // password
-                    graba($ar,"                    <input type=\"password\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
-                    graba($ar,"                        ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
-                    graba($ar,"                       value=\"{{registro.".$column[$x][0]."}}\" />"); 
-                    break;
-                case 'M': //email
-                    graba($ar,"                    <input type=\"email\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
-                    graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
-                    graba($ar,"                         pattern=\"[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}\"  value=\"{{registro.".$column[$x][0]."}}\" />");
-                    break;
-                case 'D': //date             
-                    graba($ar,"                    <input type=\"date\" width=\"12\" class=\"form-control mitexto fa fa-calendar fa-lg\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
-                    graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
-                    graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\"   />");                      
-                    break;
-                
-                default:                       
-                    graba($ar,"                    <input type=\"text\" class=\"form-control mitexto\" id=\"".$column[$x][0]."\" name=\"".$column[$x][0]."\"");
-                    graba($ar,"                         ng-model=\"registro.".$column[$x][0]."\" required Placeholder=\"{{form_Ph".$column[$x][0]."}}\" ");
-                    graba($ar,"                         value=\"{{registro.".$column[$x][0]."}}\" />");
-
-            }
-            graba($ar,"                    </div>");
-        }else{
-            print_r($column[$x]);
-            $table= $column[$x][8];
-            $inom= $column[$x][9];
-          //  $table = $fileLista[$i];
-            $pos = strpos($table, ".txt");
-            $idSel=  substr($table, 0, $pos);
-            $ngModel = "registro.".$column[$x][0];
-            
-
-//                    <select id='embrque_Pais' name='embrque_Pais' ng-model='registro.embrque_Pais' >
-//                     <option ng-repeat='operator0 in operators0' value = " {{operator0.codigo}}">{{operator0.nombre}}</option>
+    graba($ar," ");
+    graba($ar,"   // trae datos de la tabla principal");
+    graba($ar,"     useEffect(()=>{");
+    graba($ar,"         Axios.get('http://localhost:3001/lee".$tablaPrimeraMayuscula.":'+empresa)");
+    graba($ar,"         .then(res=>{");
+    graba($ar,"             var ". $tablaSinS. "Datos = res.data");
+    graba($ar,"             const slice = ". $tablaSinS. "Datos.slice(offset, offset + recordPerPage)");
+    graba($ar,"             const indexOfLastRec  = activePage * recordPerPage;");
+    graba($ar,"             const indexOfFirstRec = indexOfLastRec - recordPerPage;");
+    graba($ar,"             const currentRec     = ". $tablaSinS. "Datos.slice( indexOfFirstRec, indexOfLastRec );");
+    graba($ar,"             set". ucfirst($tablaSinS). "Datos(slice)");
+    graba($ar,"             setPageCount(Math.ceil(". $tablaSinS. "Datos.length / recordPerPage))   ");        
+    graba($ar,"         })");
+    graba($ar,"     },[offset])");
+    graba($ar," ");   
+    
+    for ($x=0;$x<=$j;$x++){
+          if($column[$x][8]!='' && $column[$x][9]!=''){
         
-            
-            if ($pos == false) {
-                $cols=trim(explode(',',$inom));
-                graba($ar,"                    <div class=\"col-md-6\">");
-                graba($ar,"                    <select id='". $column[$x][0] . "' name='". $column[$x][0] . "' ng-model='". $ngModel . "' >");
-                graba($ar,"                     <option ng-repeat='operator".$sel . " in operators" . $sel . "' value = \" {{operator".$sel."." . $cols[0] . "}}\">{{operator".$sel.".".$cols[1]."}}</option>");
-               graba($ar,"                    </select>"); 
-            }
-            else {
-                graba($ar,"                    <div class=\"col-md-6\">");
-                graba($ar,"                    <select id='". $idSel . "' name='". $idSel . "' ng-model='". $ngModel . "' >");
-                graba($ar,"                     <option ng-repeat='".$idSel . " in " . $idSel . ".availableOptions' value = \" {{" . $idSel . ".codigo}}\">{{".$idSel.".detalle}}</option>");
-                 graba($ar,"                    </select>"); 
-            }
-            graba($ar,"                    </div>");     
- 
-            
-            $sel +=1;  
-        }
-    }else {
-            if($column[$x][3]>0){
-            graba($ar,"                    <div class=\"btn-group  col-md-6\"  data-toggle=\"buttons\">");
-            $m=$column[$x][3];
-            for ($i=0;$i<$m;$i++){
-             graba($ar,"                   <label>");
-             graba($ar,"                      <input type=\"radio\" name =\"".$column[$x][0] ."\" ng-model=\"registro.".$column[$x][0]."\" value=\"".$i."\" >{{form_Activo".$x.$i."}}");    
-             graba($ar,"                   </label>");
-             }
-            graba($ar,"                    </div>");
-            }
-            
-            if($column[$x][7]>0){
-            graba($ar,"                    <div class=\"btn-group  col-md-6\"  data-toggle=\"chkbox\">");
-            $m=$column[$x][7];
-            for ($i=0;$i<$m;$i++){
-             graba($ar,"                   <label>");
-             graba($ar,"                      <input type=\"checkbox\" id=\"".$column[$x][0].$i."\" ng-model=\"registro.".$column[$x][0].$x.$i."\" value=\"Check ".$i."\" >{{form_Activo".$x.$i."}}");    
-             graba($ar,"                   </label>");
-             }
-            graba($ar,"                    </div>");
-            }            
-        }
-    graba($ar,"                </div> ");
-    graba($ar,"");         
+           $rec = explode(',', $column[$x][9]);
+           
+   // trae la lista dsplegable dinamica
+    graba($ar,"    useEffect(()=>{");
+    graba($ar,"        Axios.get('http://localhost:3001/trae".ucfirst($column[$x][8]).":'+empresa)");
+    graba($ar,"        .then((res)=>{");
+    graba($ar,"           var data=res.data");
+    graba($ar,"            if (data != null && data !== undefined){");
+    graba($ar,"            const cp = data.map((txt, key) =>   ");             
+    graba($ar,"            <option key={txt.".$rec[0]."} value={txt.".$rec[0]."}>{txt.".$rec[1]."}   ");                
+    graba($ar,"            </option>  ");              
+    graba($ar,"            )");
+    graba($ar,"            set".ucfirst($column[$x][0])."Vble(cp);");
+    graba($ar,"            }");
+    graba($ar,"        }) ");
+    graba($ar,"    },[])  ");         
+    graba($ar,"  ");           
+        }       
     }
+
+    graba($ar,"    //  Paginación");  
+    graba($ar,"");  
+    graba($ar,"    const handlePageClick = (e) => {");  
+    graba($ar,"        const selectedPage = e.selected;");  
+    graba($ar,"        alert(selectedPage)");  
+    graba($ar,"        setOffset(selectedPage + 1)");  
+    graba($ar,"    };");  
+    graba($ar,"");  
+
+    
+    
+graba($ar,"    //  Parte principal: formulario y ventana modal");  
+graba($ar,"    return(   ");     
+graba($ar,"        <Fragment>      ");        
+graba($ar,"            <div>");  
+graba($ar,"                <h2>TABLA DE ". strtoupper($tabla) . " </h2>");  
+graba($ar,"                <button onClick={recordNuevo}>Nuevo registro</button>");  
+graba($ar,"            </div> ");                 
+graba($ar,"            <Modal");  
+graba($ar,"            isOpen={modalIsOpen}");  
+graba($ar,"            ariaHideApp={false} ");  
+graba($ar,"            onAfterOpen={afterOpenModal}");  
+graba($ar,"            onRequestClose={closeModal}");  
+graba($ar,"            style={customStylesForm}");  
+graba($ar,"            contentLabel='".$tabla ."'");  
+graba($ar,"            >");  
+graba($ar,"");  
+graba($ar,"                <div className='form'>");  
+graba($ar,"                    <div className='content'>");  
+graba($ar,"                        <form className='form-horizontal' onSubmit={handleSubmit(submit".$tablaPrimeraMayuscula.")}>");  
+graba($ar,"                            <div className='laModal'>");  
+graba($ar,"                                <div className='miModalTit'>");  
+graba($ar,"                                    <h3>Actualiza ".$tabla ."</h3>");  
+graba($ar,"                                </div>");  
+graba($ar,"");  
+for ($x=0;$x<=$j;$x++){
+    $radio='';
+    if($column[$x][3]!='0' OR $column[$x][7]!='0'){ $radio="className='radio'";}    
+    graba($ar,"                                <div ".$radio.">");  
+    graba($ar,"                                 <label className='label'>".ucfirst(str_replace($prefijo,'',$column[$x][0]))."</label>"); 
+    
+    if($column[$x][8]===''){    
+       if(strtoupper($column[$x][10])==='N' OR strtoupper($column[$x][10])==='C'){
+           if ($column[$x][3]==='0' && $column[$x][7]==='0'){
+                graba($ar,"                                     <input type='text' defaultValue={".$tablaSinS ."Select.".$column[$x][0]."}");  
+                graba($ar,"                                     name='".$column[$x][0]."' placeholder='contraseña obligatorio'");  
+                graba($ar,"                                     ref={register({");  
+                graba($ar,"                                          required:{value:true, message:'Campo obligatorio'}");  
+                graba($ar,"                                      })} />");  
+           }
+           else{
+               for($m=0;$m<$column[$x][3];$m++){
+                    graba($ar,"                                     <input type='checkbox' name = '".$column[$x][0]."' defaultChecked={".$tabla ."Select.".$column[$x][0]." === '".$m."'}");  
+                    graba($ar,"                                     onChange={() => changeEstado".ucfirst($column[$x][0])."('".$m."')} ref={register()}");  
+                    graba($ar,"                                     defaultValue={".$tabla ."Select.".$column[$x][0]."='".$m."'}  /> check  : ".$m);  
+               }
+                for($m=0;$m<$column[$x][7];$m++){
+                    graba($ar,"                                     <input type='radio' name = '".$column[$x][0]."' defaultChecked={".$tabla ."Select.".$column[$x][0]." === '".$m."'}");  
+                    graba($ar,"                                     onChange={() => changeEstado".ucfirst($column[$x][0])."('".$m."')} ref={register()}");  
+                    graba($ar,"                                     defaultValue={".$tabla ."Select.".$column[$x][0]."='".$m."'}  /> Estado : ".$m);  
+               }
+           }
+       }  
+       if(strtoupper($column[$x][10])==='P'){
+           graba($ar,"                                     <input type='Password' defaultValue={".$tabla ."Select.".$column[$x][0]."}");  
+           graba($ar,"                                     name='".$column[$x][0]."' placeholder='contraseña obligatorio'");  
+           graba($ar,"                                     ref={register({");  
+           graba($ar,"                                          required:{value:true, message:'Contraseña obligatoria'}");  
+           graba($ar,"                                      })} />");  
+       }    
+       if(strtoupper($column[$x][10])==='D'){
+           graba($ar,"                                     <input type='Date' defaultValue={".$tabla ."Select.".$column[$x][0]."}");  
+           graba($ar,"                                     name='".$column[$x][0]."' placeholder='AAAA/MM/DD'");  
+           graba($ar,"                                     ref={register({");  
+           graba($ar,"                                          required:{value:true, message:'Fecha obligatoria'}");  
+           graba($ar,"                                      })} />");          
+       }
+       if(strtoupper($column[$x][10])==='M'){
+           graba($ar,"                                     <input type='email' defaultValue={".$tabla ."Select.".$column[$x][0]."}");  
+           graba($ar,"                                     name='".$column[$x][0]."' placeholder='Correo electrónico'");  
+           graba($ar,"                                     ref={register({");  
+           graba($ar,"                                          required:{value:true, message:'Correo obligatorio'}");  
+           graba($ar,"                                      })} />");          
+       }
+       if(strtoupper($column[$x][10])==='T'){
+           graba($ar,"                                     <input type='textarea' defaultValue={".$tabla ."Select.".$column[$x][0]."}");  
+           graba($ar,"                                     name='".$column[$x][0]."'  rows={2} placeholder='Correo electrónico'");  
+           graba($ar,"                                     ref={register({");  
+           graba($ar,"                                          required:{value:true, message:'Fecha obligatoria'}");  
+           graba($ar,"                                      })} />");          
+       }    
+       graba($ar,"                                </div>");  
+   }
+   else{
+        if($column[$x][9]===''){
+ // graba($ar,"   const [".$column[$x][0]."Fijo, set".ucfirst($column[$x][0])."Fijo] = useState([]);");
+ graba($ar,"                           <select  name='".$column[$x][0]."'  defaultValue={".$tabla ."Select.".$column[$x][0]."}");
+ graba($ar,"                           onChange={e=>handleChangeSelectF(e)}  ");                  
+ graba($ar,"                               ref={register({");
+ graba($ar,"                                   required:{value:true, message:'Campo obligatorio'}");
+ graba($ar,"                               })} > ");                        
+ graba($ar,"                               { ".$column[$x][0]."Fijo.map((txt, key) => ");               
+ graba($ar,"                               <option  value={txt.".$index."}>{txt.".$orden. "}   ");                
+ graba($ar,"                               </option> ) }");
+ graba($ar,"                           </select>");
+ graba($ar,"                        </div>  ");
+ graba($ar,"");
+       }else{
+ graba($ar,"");
+ graba($ar,"                           <select  name='".$column[$x][0]."' defaultValue={".$tabla ."Select.".$column[$x][0]."}");
+ graba($ar,"                           onChange={handleChangeSelectV} ");                    
+ graba($ar,"                               ref={register({");
+ graba($ar,"                                   required:{value:true, message:'Campo obligatorio'}");
+ graba($ar,"                               })} >");
+ graba($ar,"                               {".$column[$x][0]."Vble}");
+ graba($ar,"                           </select>");
+ graba($ar,"                       </div>   ");         
+ 
+ graba($ar,"                                <div>"); 
+   }
 }
-//<label><input type="checkbox" id="cbox1" value="first_checkbox"> Este es mi primer checkbox</label><br>
-       
-graba($ar,"                <div class=\"form-group\">");
-graba($ar,"                    <div class=\"col-md-5\">");
-graba($ar,"                        <button type=\"button\" value=\"Actualizar\" class=\"btn btn-custom pull-right btn-xs\" ");
-graba($ar,"                                 ng-click=\"updateInfo(registro)\" id=\"send_btn\">{{form_btnActualiza}}</button>");
-graba($ar,"                     </div>  ");
-if($frm=='cr'){
-    graba($ar,"                    <div class=\"col-md-1\">");
-    graba($ar,"                        <button type=\"button\" value=\"Cerrar\" class=\"btn btn-custom pull-right btn-xs\" ");
-    graba($ar,"                                 ng-click=\"clearInfo(registro)\" ");
-    graba($ar,"                                 id=\"send_btn\">{{form_btnAnula}}</button> ");
-    graba($ar,"                    </div>");
 }
-graba($ar,"                </div>       ");         
-graba($ar,"                <div style='display: none'>");
-graba($ar,"                <input type=\"text\"	 ng-model=\"registro.". $indice . "\" id ='". $indice . "'  name ='". $indice . "' value=\"{{registro.". $indice . "}}\"/>");
-//graba($ar,"                <input type=\"text\"  ng-model=\"registro.". $empresa . "\" id ='". $empresa . "' value=\"{{registro.". $empresa . "}}\"/>");
-graba($ar,"");               
-graba($ar,"   ");       
-graba($ar,"                </div>");
-graba($ar,"            </form>");
-graba($ar,"	</div>");
-if($frm=='cr'){
-    graba($ar,"	<div class=\"clearfix\"></div>");
-    graba($ar,"        <div class=\"col-md-10\">");
-    graba($ar,"            <!-- Table to show employee detalis -->");
-    graba($ar,"            <div class=\"table-responsive\">");
-    graba($ar,"                <table class=\"table table-hover tablex\">");
-    graba($ar,"                    <tr>");
-            for ($x=0;$x<=$j;$x++){
-               graba($ar,"                        <th>".$column[$x][2]."</th>");
-            }
-    graba($ar,"                    </tr>");
-    graba($ar,"                   ");
-    graba($ar,"                    <tr ng-repeat=\"detail in details| filter:search_query\">");
-            for ($x=0;$x<=$j;$x++){
-               graba($ar,"                    <td>{{detail.".$column[$x][0]."}}</td>");
-            }
-    graba($ar,"                    <td>");
-    graba($ar,"                    <button class=\"btn btn-warning btn-xs\" ng-click=\"editInfo(detail)\" title=\"{{form_btnEdita}}\"><span class=\"glyphicon glyphicon-edit\"></span></button>");
-    graba($ar,"                    </td>");
-    graba($ar,"                    <td>");
-    graba($ar,"                    <button class=\"btn btn-danger btn-xs\" ng-click=\"deleteInfo(detail)\" ");
-    graba($ar,"                            confirm=\"Está seguro ?, {{form_btnElimina}}?\" title=\"{{form_btnElimina}}\"><span class=\"glyphicon glyphicon-trash\"></span></button>");
-    graba($ar,"                    </td>");
-    graba($ar,"                    </tr>");
-    graba($ar,"                </table>");
-    graba($ar,"            </div>");
-    graba($ar,"        </div>");    
+graba($ar,"                                    <button>Aceptar</button>");  
+graba($ar,"                                    <button onClick={closeModal}>Anula</button>");  
+graba($ar,"                                </div>");  
+graba($ar,"                                <div  style={{visibility : 'hidden' }}>");  
+graba($ar,"                                    <input type='text'  name ='id'");   
+graba($ar,"                                    defaultValue={".$tablaSinS ."Select.id}");  
+graba($ar,"                                    ref={ register({value:0})}/>  ");    
+graba($ar,"                                </div>");  
+graba($ar,"                            </div>");  
+graba($ar,"                        </form> ");  
+graba($ar,"                    </div>");  
+graba($ar,"                </div>");  
+graba($ar,"            </Modal> ");   
+graba($ar,"");  
+graba($ar,"            <Modal");  
+graba($ar,"            isOpen={modalDeleteIsOpen}");  
+graba($ar,"            ariaHideApp={false}");   
+graba($ar,"            onRequestClose={closeModalDelete}");  
+graba($ar,"            style={customStylesDelete}");  
+graba($ar,"            >");  
+graba($ar,"                <div className='laModal'>");  
+graba($ar,"                    <span>Quiere Borrar a {codBorrado}</span>");  
+graba($ar,"                    <div className='tabla'> ");     
+graba($ar,"                        <button className='btn btn-sm btn-primary mr-2'onClick={confirmaBorraRec}>Si</button>");  
+graba($ar,"                        <button className='btn btn-sm btn-secondary' onClick={closeModalDelete}>No</button>");  
+graba($ar,"                    </div>");  
+graba($ar,"                </div>");  
+graba($ar,"            </Modal>"); 
+graba($ar,"");
+graba($ar,"            <div className='table-responsive tabla'>");
+graba($ar,"                <table className='table table-bordered table-hover table-sm'> ");
+graba($ar,"                    <thead>  ");                      
+graba($ar,"                        <tr>");
+for ($x=0;$x<=$j;$x++){
+  graba($ar,"                            <th>".ucfirst(str_replace($prefijo,'',$column[$x][0]))."</th>");  
+}
+graba($ar,"                            <th colSpan='2'>COMANDOS</th>");
+graba($ar,"                        </tr> ");
+graba($ar,"                     ");
+graba($ar,"                    </thead>  ");
+graba($ar,"					<tbody>");        
+graba($ar,"					{  ". $tabla."Datos.map((txt, key) => ");              
+graba($ar,"					<tr key={txt.".$index."}>");
+for ($x=0;$x<=$j;$x++){
+graba($ar,"						<td>{txt.".$column[$x][0]."}</td>");
 }
 
-graba($ar,"</div>");
+graba($ar,"						<td><button onClick={() =>  selecciona". ucfirst($tablaSinS)."(txt,'Editar')} className='btn btn-sm btn-primary '>Cambia</button></td>");
+graba($ar,"						<td><button onClick={() => borraRec(txt)} className='btn btn-sm btn-danger '>Anula</button></td>");
+graba($ar,"					</tr>    ");                          
+graba($ar,"					)}");
+graba($ar,"					</tbody> ");                
+graba($ar,"                </table>");
+graba($ar,"                    <div className='pagination'>");
+graba($ar,"                    <Pagination");
+graba($ar,"                    previousLabel={'anterior'}");
+graba($ar,"                    nextLabel={'siguiente'}");
+graba($ar,"                    breakLabel={'...'}");
+graba($ar,"                    breakClassName={'break-me'}");
+graba($ar,"                    pageCount={pageCount}");
+graba($ar,"                    marginPagesDisplayed={2}");
+graba($ar,"                    pageRangeDisplayed={8}");
+graba($ar,"                    onPageChange={handlePageClick}");
+graba($ar,"                    containerClassName={'pagination'}");
+graba($ar,"                    subContainerClassName={'pages pagination'}");
+graba($ar,"                    activeClassName={'active'}/>   ");               
+graba($ar,"                </div>");
+graba($ar,"            </div>");
+graba($ar,"");
 graba($ar,"");
 
-$puntos="";
-
-if ($hdr=='si'){
-    $puntos="../";
-    graba($ar,"</body>");
-    graba($ar,"<script src=\"../js/jQuery-2.2.0.min.js\" type=\"text/javascript\"></script>");
-    graba($ar,"<script src=\"http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js\" type=\"text/javascript\"></script>");
-    graba($ar,"<script src=\"../js/bootstrap.js\" type=\"text/javascript\"></script>");
-    graba($ar,"<script src=\"../js/angular-script_1.js\" type=\"text/javascript\"></script>");
-    graba($ar,"<script src=\"../js/angular-script.js\" type=\"text/javascript\"></script>");
-}    
-graba($ar,"<script src=\"".$puntos."controller/".$tabla.".ctrl.js\" type=\"text/javascript\"></script>");
-
-graba($ar,"	 ");
-if ($hdr=='si'){
-    graba($ar,"</html>");
-}
-$alvaro = $autor. "   " . $hoy ."  ";
-fputs($ar,"<!-- >>>>>>>   Creado por: ".$alvaro." <<<<<<< -->");
+graba($ar,"        </Fragment>");  
+graba($ar,"    )");  
+graba($ar,"}  ");                       
+    
+graba($ar,""); 
+graba($ar,""); 
+graba($ar," export default Mas".$tablaPrimeraMayuscula.";");
+graba($ar,""); 
+fputs($ar,"//   Creado por: ".$alvaro." ");
 fputs($ar,"\n");
 fclose($ar);
 //
@@ -873,12 +852,12 @@ fclose($ar);
 $msg = "Se han creado los modulos.";
 echo $msg;
 return $msg;
+}
 
 
-   
  function graba($ar,$ln){
     str_replace('|','"',$ln);
     fputs($ar,$ln);
     fputs($ar,"\n");
 }
-    
+   

@@ -1,0 +1,40 @@
+<?php
+$idioma="ENG";
+$titGeneral="FORM GENERATOR CRUD WHITH REACTJS AND NODEJS";
+$version = "v.1.0.2 - 2021-03-14";
+$tpFormulario="Form Type";
+$formulario="Form";
+$conEncabezado="With Header";
+$si="Yes";
+$no="NO";
+$baseDatos="Data Base";
+$tabla="Table to be processed";
+$columnas="Table Columns";
+$prefijo="Prefix fields";
+$usuario="User";
+$descarga="Objetc download";
+$ruta="Route Lists";
+$procesa="Process";
+$ayudas="Help";
+$proyecto="Project";
+$nota="The index field, ordering field and the author field must be indicated";
+$lecturas="Readings";
+$manual="User guide";
+
+//$tpFormulario="Tipo formulario";
+//$formulario="Formulario";
+//$conEncabezado="Con Encabezado";
+//$exporta="Exporta a Excel";
+//$si="SI";
+//$no="NO";
+//$baseDatos="Base de Datos";
+//$tabla="Tabla a procesar";
+//$columnas="Columnas de la tabla";
+//$prefijo="Prefijo campos";
+//$usuario="Usuario";
+
+//$descarga="Descargar Objetos";
+//$ruta="Ruta listas";
+//$procesa="Procesa";
+//$ayudas="Ayudas";
+//$nota="Debe indicarse: el campo de indice, el  ordenamiento y el  autor";
